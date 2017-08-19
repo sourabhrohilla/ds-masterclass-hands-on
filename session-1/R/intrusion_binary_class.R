@@ -21,6 +21,12 @@ input_data <- unique(input_data)
 ###### Check for Missing data ########
 cols_with_missing_vals <- sapply(input_data, function(x) sum(is.na(x)/nrow(input_data))) 
 
+#####Grouping attack labels into sub categories#########
+input_data[, label][input_data[, label] %in% c('back.','land.','neptune.','pod.','smurf.','teardrop.')] <- 'dos'
+input_data[, label][input_data[, label] %in% c('buffer_overflow.','loadmodule.','perl.','rootkit.')] <- 'utr'
+input_data[, label][input_data[, label] %in% c('ftp_write.','guess_passwd.','imap.','multihop.','phf.','spy.','warezclient.','warezmaster.')] <- 'rtl'
+input_data[, label][input_data[, label] %in% c('satan.','ipsweep.','nmap.','portsweep.')] <- 'probes'
+
 #####Grouping all attacks together##############
 input_data[, label][!input_data[, label] %in% c('normal.')] <- 'attacks'
 
@@ -37,9 +43,9 @@ barplot(label_info,ylim=c(0,85000), xlab="Label", ylab="Frequency", col="black",
         main="Label Distribution")
 
 ####Distribution of features with class variable######
-label<- "label"
+label<-'label'
 categorical_cols <- names(input_data)[ sapply(input_data, is.factor)]
-categorical_cols <- categorical_cols[!which(categorical_cols %in%  c("label"))]
+categorical_cols <- categorical_cols[!which(categorical_cols %in%  c(label))]
 numeric_cols     <- names(input_data)[ sapply(input_data, is.numeric)]
 
 for(col_name in categorical_cols)
@@ -53,10 +59,8 @@ for(col_name in categorical_cols)
 
 for (col_name in numeric_cols)
 {
-  # minm<-min(input_data[[col_name]])  
-  # maxm<-max(input_data[[col_name]])
-  print(col_name)
-  print(fivenum(input_data[[col_name]]))
+  minm<-min(input_data[[col_name]])  
+  maxm<-max(input_data[[col_name]])
   boxplot(input_data[[col_name]]~input_data[, label], col = "lightblue", xlab=col_name, ylab="frequency", main = col_name)
 }
 
@@ -73,32 +77,32 @@ corrplot(relevant_correlations, method="square")
 training_data_identifier      <- createDataPartition(y = input_data[, label], p= 0.7, list = FALSE)
 training   <- as.data.frame(input_data[training_data_identifier,])
 testing    <- as.data.frame(input_data[-training_data_identifier,])
-test_label <- testing[,label]
+test_label <- testing[, label]
 testing    <- testing[-which(names(testing) %in% c('label'))]
 
 #####Building Naive-bayes Model#########
-nb_model    <- naive_bayes(training[,label] ~ ., data=training)
+nb_model    <- naive_bayes(training[, label] ~ ., data=training)
 nb_predictions     <- predict(nb_model,testing)
 nb_cnmatrix <- confusionMatrix(table(nb_predictions,test_label))
 
 ####Building logistic-regression Model #############
-lr_model    <- glm(training[,label] ~. ,data=training,family = binomial(logit))
+lr_model    <- glm(training[, label] ~. ,data=training,family = binomial(logit))
 lr_predictions     <- predict.glm(lr_model,testing,type = 'response')
 lr_cnmatrix <- table(test_label,lr_predictions > 0.5)
  
 
 ####Building Random Forest Model#######
-rf_model    <- randomForest(training[,label] ~ ., data=training,importance=TRUE,ntree=100)
+rf_model    <- randomForest(training[, label] ~ ., data=training,importance=TRUE,ntree=100)
 rf_predictions     <- predict(rf_model,testing)
 rf_cnmatrix <- confusionMatrix(table(rf_predictions,test_label))
 
 ###Building SVM #####
-svm_model <- svm(training[,label] ~ ., data=training)
+svm_model <- svm(training[, label] ~ ., data=training)
 svm_pred     <- predict(svm_model,testing)
 svm_cnmatrix <- confusionMatrix(table(svm_pred,test_label))
 
 ####Building Decision Tree #####
-dtree_model<-rpart(training[,label] ~ ., data=training)
+dtree_model<-rpart(training[, label] ~ ., data=training)
 rpart.plot(dtree_model)
 dtree_pred <- predict(dtree_model,testing, type = "class")
 dtree_cnmatrix <- confusionMatrix(table(dtree_pred,test_label))
