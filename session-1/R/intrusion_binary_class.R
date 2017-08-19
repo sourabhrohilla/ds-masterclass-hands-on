@@ -6,9 +6,8 @@ sapply(load.libraries, require, character = TRUE)
 
 ####### Reading the data from csv #########
 # Enter your own path containing the dataset.
-file_path  <- ('~/Downloads/intrusion_detection_dataset.csv')
+file_path  <- ('/home/karan/bangalore_conf/kddcup.data_10_percent1.csv')
 input_data <- read.csv(file_path,stringsAsFactors = FALSE,header = TRUE)
-
 
 #####Structure of data ######
 dim(input_data)
@@ -63,15 +62,14 @@ input_data <- input_data [ ,-which(names(input_data) %in% c('is_host_login','num
 #### Correlation matrix #####
 numeric_cols      <- names(input_data)[sapply(input_data, is.numeric)]
 correlationMatrix <- cor(input_data[,numeric_cols])
-relevant_correlations <- subset(melt(correlationMatrix, na.rm = TRUE), abs(value) > 0.8 & abs(value) <1)
-corrplot(relevant_correlations, method="square")
+relevant_correlations <- as.matrix(subset(melt(correlationMatrix, na.rm = TRUE), abs(value) > 0.8 & abs(value) <1))
 
 ######Creating train-test split using stratified sampling########### 
 training_data_identifier      <- createDataPartition(y = input_data$label, p= 0.7, list = FALSE)
-training   <- as.data.frame(input_data[training_data_identifier,])
-testing    <- as.data.frame(input_data[-training_data_identifier,])
-test_label <- testing$label
-testing    <- testing[-which(names(testing) %in% c('label'))]
+training                      <- as.data.frame(input_data[training_data_identifier,])
+testing                       <- as.data.frame(input_data[-training_data_identifier,])
+test_label                    <- testing$label
+testing                       <- testing[-which(names(testing) %in% c('label'))]
 
 #####Building Naive-bayes Model#########
 nb_model    <- naive_bayes(training$label ~ ., data=training)
