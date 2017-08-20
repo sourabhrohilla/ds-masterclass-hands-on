@@ -29,8 +29,15 @@ Session 2 : News articles recommender
 1. numpy
 2. pandas
 3. sklearn
-4. nltk
-5. gensim
+4. nltk 3.2.4
+5. Install nltk corpus and model:
+   $ python
+   '''> import nltk'''  '''> nltk.download(‘stopwords’)'''
+   '''> nltk.download(‘punkt’)'''
+   '''> nltk.download(&#39;maxent_ne_chunker&#39;)'''
+   '''> nltk.download(&#39;averaged_perceptron_tagger&#39;)'''
+   '''> nltk.download(‘words)'''
+6. gensim 0.12.4
 
 ### For participants who will be using R
 1. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
