@@ -6,7 +6,9 @@ The folder
 
 ### For participants who will be using python
 1. Anaconda distribution for python : Go to https://www.continuum.io/downloads and download the latest Anaconda distribution.
-2. Install the libraries listed below. 
+2. Run `conda install jupyter`
+3. Run `conda install -c glemaitre imbalanced-learn`
+4. Install the libraries listed below using pip. 
 
 Steps to install a library in python.
 1. Go to terminal/command-prompt.
