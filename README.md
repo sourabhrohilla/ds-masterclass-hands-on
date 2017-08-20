@@ -20,7 +20,8 @@ Session 1 :  Intrusion detection
 3. matplotlib
 4. seaborn
 5. sklearn
-6. xgboost  
+6. imblearn
+7. xgboost  
 
 Session 2 : News articles recommender
 1. numpy
