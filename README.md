@@ -37,13 +37,17 @@ Session 2 : News articles recommender
    > nltk.download('punkt')
    > nltk.download('maxent_ne_chunker')
    > nltk.download('averaged_perceptron_tagger')
-   > nltk.download('words')```
+   > nltk.download('words')   
+   ```
 6. gensim 0.12.4  
-   ```conda install -c anaconda gensim ```
+   ```
+   conda install -c anaconda gensim
+   ```
 
 ### For participants who will be using R
-1. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
-2. Install the libraries listed below. 
+1. Set up R : Go to https://ftp.iitm.ac.in/cran/ and download R for your OS.
+2. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
+3. Install the libraries listed below. 
 
 Steps to install a library in RStudio
 1. Open RStudio.
