@@ -1,17 +1,19 @@
 #########Loading the required libraries and installing the missing ones ###################
-load.libraries <- c('ggplot2', 'randomForest', 'caret', 'rpart','plyr', 'gbm','rpart.plot','reshape2', 'naivebayes','corrplot','e1071')
+load.libraries <- c('ggplot2', 'randomForest', 'caret', 'rpart','plyr', 'gbm','rpart.plot',
+                    'reshape2', 'naivebayes','corrplot','e1071','glmnet')
 install.lib <- load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
 
 ####### Reading the data from csv #########
 # Enter your own path containing the dataset.
-file_path  <- ('/home/karan/bangalore_conf/kddcup.data_10_percent1.csv')
+file_path  <- ('~/Downloads/kddcup.data_10_percent1.csv')
 input_data <- read.csv(file_path,stringsAsFactors = FALSE,header = TRUE)
 
 #####Structure of data ######
 dim(input_data)
 str(input_data)
+
 
 ######Removing duplicates from data####
 dim(unique(input_data))
@@ -97,3 +99,23 @@ dtree_model<-rpart(training$label ~ ., data=training)
 rpart.plot(dtree_model)
 dtree_pred <- predict(dtree_model,testing, type = "class")
 dtree_cnmatrix <- confusionMatrix(table(dtree_pred,test_label))
+
+
+
+##Hyperparameter tuning with GridSearchCV to tune random forest
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+grid <- expand.grid(mtry=c(6,8,10))
+rf_model <- train(training$label ~. ,data=training,family = "binomial",
+                  method="rf", trControl=control, tuneGrid=grid)
+
+##Balance class data
+#1. Adjust class weights
+control <- trainControl(method="repeatedcv", number=10, repeats=1)
+mod1 <- train(training$label ~. ,data=training,
+              method = "C5.0Cost",
+              tuneGrid = expand.grid(model = "tree", winnow = FALSE,
+                                     trials = c(1:10, (1:5)*10),
+                                     cost = 1:10),
+              trControl = control)
+
+#2. Change decision threshold
