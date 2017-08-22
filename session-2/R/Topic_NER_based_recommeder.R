@@ -29,7 +29,7 @@ N=5
 alpha =0.5
 
 #########Loading the required libraries and installing the missing ones ###################
-load.libraries <- c('tm', 'topicmodels','lda','MASS','NLP','R.utils', 'stringdist','dplyr',
+load.libraries <- c('tm', 'topicmodels','lda','MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC',
                     'rJava','NLP','openNLP','RWeka','magrittr','openNLPmodels.en')
 install.lib <- load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
@@ -182,7 +182,6 @@ Articles_ranking$Cosine_Similarity_Score = NA
 head(Articles_ranking)
 
 for (i in 1:(nrow(Articles_ranking))){
-  print(i)
   Articles_ranking[i,2] = sum(Article_topics[i,1:k]*user_article_topics)/
     (sqrt(sum((Article_topics[i,1:k])^2))*sqrt(sum((user_article_topics)^2)))
 }
@@ -217,7 +216,6 @@ Articles_ranking$Cosine_Similarity_Score = NA
 head(Articles_ranking)
 
 for (i in 1:(nrow(Articles_ranking))){
-  print(i)
   Articles_ranking[i,2] = sum(Article_topics[i,1:k]*user_article_topics)/
     (sqrt(sum((Article_topics[i,1:k])^2))*sqrt(sum((user_article_topics)^2)))
 }

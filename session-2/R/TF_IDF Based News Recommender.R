@@ -15,7 +15,7 @@ User_list=c(7,6,76,61,761)
 N=5
 
 #########Loading the required libraries and installing the missing ones ###################
-load.libraries <- c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr')
+load.libraries <- c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC')
 install.lib <- load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
@@ -113,7 +113,6 @@ Articles_ranking$Cosine_Similarity_Score = NA
 head(Articles_ranking)
 
 for (i in 1:(nrow(Articles_ranking))){
-  print(i)
   Articles_ranking[i,3] = sum(article_tfidf_matrix[i,]*user_article_tfidf)/((sqrt(sum(article_tfidf_matrix[i,]*article_tfidf_matrix[i,])))*(sqrt(sum(user_article_tfidf *user_article_tfidf))))
 }
 
