@@ -6,7 +6,9 @@ The folder
 
 ### For participants who will be using python
 1. Anaconda distribution for python : Go to https://www.continuum.io/downloads and download the latest Anaconda distribution.
-2. Install the libraries listed below. 
+2. Run `conda install jupyter`
+3. Run `conda install -c glemaitre imbalanced-learn`
+4. Install the libraries listed below using pip. 
 
 Steps to install a library in python.
 1. Go to terminal/command-prompt.
@@ -20,18 +22,32 @@ Session 1 :  Intrusion detection
 3. matplotlib
 4. seaborn
 5. sklearn
-6. xgboost  
+6. imblearn
+7. xgboost  
 
 Session 2 : News articles recommender
 1. numpy
 2. pandas
 3. sklearn
-4. nltk
-5. gensim
+4. nltk 3.2.4
+5. Install nltk corpus and model:  
+   ```$ python
+   > import nltk
+   > nltk.download('stopwords')
+   > nltk.download('punkt')
+   > nltk.download('maxent_ne_chunker')
+   > nltk.download('averaged_perceptron_tagger')
+   > nltk.download('words')   
+   ```
+6. gensim 0.12.4  
+   ```
+   conda install -c anaconda gensim
+   ```
 
 ### For participants who will be using R
-1. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
-2. Install the libraries listed below. 
+1. Set up R : Go to https://ftp.iitm.ac.in/cran/ and download R for your OS.
+2. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
+3. Install the libraries listed below. 
 
 Steps to install a library in RStudio
 1. Open RStudio.
