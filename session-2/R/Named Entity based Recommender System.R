@@ -1,8 +1,8 @@
 ########## Named Entity based Recommender System ###########
 # Recommender System based on Named Entities as representation of documents
-
 # Named Entity Based Recommender
-#1.Represent articles in terms TF-IDF Matrix
+#1.Derived named entities in user read/preferred articles 
+#2.Append the user read articles to existing corpus and represent articles in terms TF-IDF Matrix
 #2.Represent user in terms of -
 #  (Alpha) <TF-IDF Vector> + (1-Alpha) <NER Vector>
 # where Alpha => [0,1] 
@@ -24,26 +24,22 @@ N=5
 alpha = 0.5
 
 #########Loading the required libraries and installing the missing ones ###################
+
 load.libraries <- c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC',
-                    'rJava','NLP','openNLP','RWeka','magrittr','openNLPmodels.en')
+                    'rJava','NLP','openNLP','RWeka','magrittr')
 install.lib <- load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
 
-# For NER
-library(rJava)
-library(NLP)
-library(openNLP)
-library(RWeka)
-library(qdap)
-library(magrittr)
-library(openNLPmodels.en)
+# OpenNLPModels.en
+loadOpenNLP.libraries <- c('openNLPmodels.en')
+install.lib <- loadOpenNLP.libraries[!loadOpenNLP.libraries %in% installed.packages()]
+for(libs in install.lib){install.packages("openNLPmodels.en",
+                                          repos = "http://datacube.wu.ac.at/",
+                                          type = "source")} 
+sapply(loadOpenNLP.libraries, require, character = TRUE)
 
-###### 1.Represent articles in terms of bag of words ##############
-#1.Reading the csv file to get the Article id, Title and News Content
-#2.Remove punctuation marks and other symbols from each article
-#3.Tokenize each article
-#4. Stem token of every article
+# Load the articles 
 
 News_Articles<-read.csv(Path_News_Articles)
 head(News_Articles)
@@ -54,82 +50,7 @@ News_Articles = News_Articles[,c('Article_Id','Title','Content')]
 Articles = News_Articles[complete.cases(News_Articles),]
 Articles$Content[0] # an uncleaned article
 
-# Text cleaning and Tokenizing 
-myCorpus = Corpus(VectorSource(Articles$Content))
-toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x)) 
-toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x)) 
-myCorpus<- tm_map(myCorpus, toSpace, "/|@|\\|")
-removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
-myCorpus <- tm_map(myCorpus, removeURL)
-myCorpus <- tm_map(myCorpus, tolower)
-myCorpus <- tm_map(myCorpus, removePunctuation)
-myCorpus <- tm_map(myCorpus, removeNumbers)
-myCorpus <- tm_map(myCorpus, PlainTextDocument)
-myCorpus <- tm_map(myCorpus, removeWords, stopwords("english"))
-myCorpus <- tm_map(myCorpus,stemDocument)
-
-#Tokenise
-removeRegex<- function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +")
-myCorpus<- tm_map(myCorpus, removeRegex)
-
-
-################ 2. Text processing of user read articles ########################
-idx<-which(Articles$Article_Id %in% User_list)
-User_articles = Articles[idx,]
-#Combining user preferred articles together 
-text<- paste(User_articles$Content, collapse=" ")
-
-# Text processing of User articles 
-userCorpus = Corpus(VectorSource(text))
-toSpace    = content_transformer(function(x, pattern) gsub(pattern, " ", x)) 
-userCorpus = tm_map(userCorpus, toSpace, "/|@|\\|")
-removeURL  = function(x) gsub("http[[:alnum:]]*", "", x)
-userCorpus = tm_map(userCorpus, removeURL)
-userCorpus = tm_map(userCorpus, tolower)
-userCorpus = tm_map(userCorpus, removePunctuation)
-userCorpus = tm_map(userCorpus, removeNumbers)
-userCorpus = tm_map(userCorpus, PlainTextDocument)
-userCorpus = tm_map(userCorpus, removeWords, stopwords("english"))
-userCorpus = tm_map(userCorpus,stemDocument)
-
-#Tokenise
-removeRegex = function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +")
-userCorpus  = tm_map(userCorpus, removeRegex)
-
-##### 3. Generate TF-IDF matrix for user unread articles and user read articles 
-
-# TFIDF values vecctor for unread articles 
-
-Dtm_myCorpus           = DocumentTermMatrix(myCorpus, 
-                                            control = list(wordLengths=c(2,Inf), 
-                                                           weighting=weightTf))
-Dtm_myCorpus           = as.matrix(Dtm_myCorpus)
-idf                    = as.matrix(log( nrow(Dtm_myCorpus) / ( 1 + colSums(Dtm_myCorpus != 0))))
-
-article_tfidf_matrix_dtm   = DocumentTermMatrix(myCorpus, 
-                                            control = list(wordLengths=c(2,Inf), 
-                                                           weighting=function(x)
-                                                             weightTfIdf(x, normalize =FALSE)))
-article_tfidf_matrix    = as.matrix(article_tfidf_matrix_dtm)
-
-# TFIDF values for read articles 
-user_article_tf        = DocumentTermMatrix(userCorpus, control = list
-                                            (dictionary=Terms(article_tfidf_matrix_dtm), wordLengths=c(2,Inf), 
-                                              weighting=weightTf))
-
-user_article_tf       = as.matrix(user_article_tf)
-user_article_tfidf  = as.matrix(user_article_tf*t(idf))
-dim(t(idf))
-dim(user_article_tf)
-dim(user_article_tfidf)
-# Checking if the word order is same for both user read and unread articles vector represeantion
-Y = as.vector(colnames(user_article_tf)) 
-X = as.vector(colnames(article_tfidf_matrix))
-all.equal(X,Y)
-
-##### 4. Generate TF-IDF vector for user read articles, only considering NER terms of the text
-
-# Extracting NEs from user read article text
+################### 1. Extracting NEs from user read article text #############################
 idx<-which(Articles$Article_Id %in% User_list)
 User_articles = Articles[idx,]
 #Combining user preferred articles together 
@@ -166,41 +87,75 @@ organizations = (entities(text_doc, kind = "organization"))
 user_Text_Ner<- paste(c(persons, locations, organizations), collapse = " ")
 print(user_Text_Ner)
 
-# Text processing of NER text
-userNerCorpus = Corpus(VectorSource(user_Text_Ner))
+# Combining to the dataframe 
+user_NER_articles_id = max(Articles$Article_Id)+1
+User_NER_article_title = 'Named Entities'
+
+User_content = data.frame(user_NER_articles_id,User_NER_article_title,user_Text_Ner)
+colnames(User_content)<-c('Article_Id','Title','Content')
+# combining the user articles to the corpus
+Articles= rbind(Articles[,c('Article_Id','Title','Content')], User_content)
+head(Articles[,c('Article_Id','Title','Content')])
+
+###### 2.Represent articles in terms of bag of words ##############
+
+# Text cleaning and Tokenizing 
+ArticleCorpus = Corpus(VectorSource(Articles$Content))
 toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x)) 
+ArticleCorpus<- tm_map(ArticleCorpus, toSpace, "/|@|\\|")
 removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
-userNerCorpus  <- tm_map(userNerCorpus , tolower)
-userNerCorpus  <- tm_map(userNerCorpus , removePunctuation)
-userNerCorpus  <- tm_map(userNerCorpus , PlainTextDocument)
-userNerCorpus  <- tm_map(userNerCorpus , removeWords, stopwords("english"))
-userNerCorpus  <- tm_map(userNerCorpus ,stemDocument)
+ArticleCorpus <- tm_map(ArticleCorpus, removeURL)
+ArticleCorpus <- tm_map(ArticleCorpus, tolower)
+ArticleCorpus <- tm_map(ArticleCorpus, removePunctuation)
+ArticleCorpus <- tm_map(ArticleCorpus, removeNumbers)
+ArticleCorpus <- tm_map(ArticleCorpus, PlainTextDocument)
+ArticleCorpus <- tm_map(ArticleCorpus, removeWords, stopwords("english"))
+ArticleCorpus <- tm_map(ArticleCorpus,stemDocument)
 
 #Tokenise
-removeRegex = function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +")
-userNerCorpus  = tm_map(userNerCorpus, removeRegex)
+removeRegex<- function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +")
+ArticleCorpus<- tm_map(ArticleCorpus, removeRegex)
 
-user_article_NER_tf <- DocumentTermMatrix(userNerCorpus, control = list
-                                   (dictionary=Terms(article_tfidf_matrix_dtm), wordLengths=c(2,Inf), 
-                                     weighting=weightTf))
+##### 2. Generate TF-IDF matrix for the corpus ################
 
-user_article_NER_tf= as.matrix(user_article_NER_tf)
-user_article_NER_tfidf  = as.matrix(user_article_NER_tf*t(idf))
-# User_Vector =>  (Alpha) [TF-IDF Vector] + (1-Alpha) [NER Vector] 
+# TFIDF values vecctor for unread articles 
+Dtm_ArticleCorpus         = DocumentTermMatrix(ArticleCorpus, 
+                                               control = list(wordLengths=c(2,Inf), 
+                                                              weighting=function(x)
+                                                                weightTfIdf(x, normalize =FALSE)))
+article_tfidf_matrix      = as.matrix(Dtm_ArticleCorpus)
+dim(article_tfidf_matrix)
+#### 3. Text processing of user read articles and generating TFIDF value vector  #####
+
+## TfIdf value vector for user text 
+# Generating TfIDf vector for user read articles 
+idx<-which(Articles$Article_Id%in% User_list)
+if(length(idx)>1){
+  user_article_tfidf = colMeans(article_tfidf_matrix[idx,])
+}else{ 
+  user_article_tfidf = (article_tfidf_matrix[idx,])}
+  
+## TfIdf value vector for user NER text 
+NER_idx<-which(Articles$Article_Id%in% user_NER_articles_id)
+user_article_NER_tfidf =article_tfidf_matrix[NER_idx,]
+
+#User_Vector =>  (Alpha) [TF-IDF Vector] + (1-Alpha) [NER Vector] 
+
 user_vector = alpha*(user_article_tfidf ) + (1-alpha)*user_article_NER_tfidf
 
 ######### 5. Calculate cosine similarity between user read articles and unread articles ######################
 
 Articles_ranking                         = Articles[,c("Article_Id","Title")]
 Articles_ranking$Cosine_Similarity_Score = NA
-head(Articles_ranking)
-
+i=1
 for (i in 1:(nrow(Articles_ranking))){
   Articles_ranking[i,3] = sum(article_tfidf_matrix[i,]*user_vector)/((sqrt(sum(article_tfidf_matrix[i,]*article_tfidf_matrix[i,])))*(sqrt(sum(user_vector *user_vector))))
 }
+head(Articles_ranking)
+
 
 # Remove the articles which are already read by the user 
-Articles_ranking = subset(Articles_ranking, !(Article_Id %in% User_list))
+Articles_ranking = subset(Articles_ranking, !(Article_Id %in% c(User_list,user_NER_articles_id)))
 
 # Sorting based on the cosine similarity score
 Articles_ranking = Articles_ranking[order(-Articles_ranking$Cosine_Similarity_Score),]
@@ -223,17 +178,17 @@ alpha = 0
 user_vector = alpha*user_article_tfidf + (1-alpha)*user_article_NER_tfidf
 dim(user_vector)
 
-
-Articles_ranking  = Articles[,c("Article_Id","Title")]
+Articles_ranking                         = Articles[,c("Article_Id","Title")]
 Articles_ranking$Cosine_Similarity_Score = NA
+i=1
+for (i in 1:(nrow(Articles_ranking))){
+  Articles_ranking[i,3] = sum(article_tfidf_matrix[i,]*user_vector)/((sqrt(sum(article_tfidf_matrix[i,]*article_tfidf_matrix[i,])))*(sqrt(sum(user_vector *user_vector))))
+}
 head(Articles_ranking)
 
-for (i in 1:(nrow(Articles_ranking))){
-  Articles_ranking[i,3] = sum(article_tfidf_matrix[i,]*user_article_tfidf)/((sqrt(sum(article_tfidf_matrix[i,]*article_tfidf_matrix[i,])))*(sqrt(sum(user_article_tfidf *user_article_tfidf))))
-}
 
 # Remove the articles which are already read by the user 
-Articles_ranking = subset(Articles_ranking, !(Article_Id %in% User_list))
+Articles_ranking = subset(Articles_ranking, !(Article_Id %in% c(User_list,user_NER_articles_id)))
 
 # Sorting based on the cosine similarity score
 Articles_ranking = Articles_ranking[order(-Articles_ranking$Cosine_Similarity_Score),]
@@ -249,5 +204,3 @@ print(User_read_articles)
 
 ## Print recoommended articles 
 print(Top_n_articles)
-
-
