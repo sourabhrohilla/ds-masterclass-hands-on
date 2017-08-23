@@ -45,7 +45,7 @@ Session 2 : News articles recommender
    ```
 
 ### For participants who will be using R
-1. Set up R : Go to https://ftp.iitm.ac.in/cran/ and download R for your OS.
+1. Set up R : Go to https://cran.rstudio.com/ and download R for your OS. Please download R 3.4.1
 2. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
 3. Install the libraries listed below. 
 
