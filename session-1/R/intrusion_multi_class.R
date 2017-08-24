@@ -6,8 +6,8 @@ sapply(load.libraries, require, character = TRUE)
 
 ####### Reading the data from csv #########
 # Enter your own path containing the dataset.
-train_file_path  <- ('/home/karan/Downloads/session_1_data_train.csv')
-test_file_path  <- ('/home/karan/Downloads/session_1_data_test.csv')
+train_file_path  <- ('~/Desktop/hands-on/session_1_data_train.csv')
+test_file_path  <- ('~/Desktop/hands-on/session_1_data_test.csv')
 train_data <- read.csv(train_file_path,stringsAsFactors = FALSE,header = TRUE)
 test_data <- read.csv(test_file_path,stringsAsFactors = FALSE,header = TRUE)
 
@@ -99,11 +99,6 @@ y_test                       <- test_data$label
 nb_model    <- naive_bayes(train_data$label ~ ., data=train_data)
 nb_pred     <- predict(nb_model,X_test)
 nb_cnmatrix <- confusionMatrix(table(nb_pred,y_test))
-
-####Building logistic-regression Model #############
-lr_model    <- glm(train_data$label ~. ,data=train_data,family = binomial(logit))
-lr_pred     <- predict.glm(lr_model,X_test,type = 'response')
-lr_cnmatrix <- table(y_test,lr_pred > 0.5)
 
 ####Building Random Forest Model#######
 rf_model    <- randomForest(train_data$label ~ ., data=train_data,importance=TRUE,ntree=100)
