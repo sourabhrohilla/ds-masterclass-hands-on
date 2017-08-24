@@ -1,0 +1,11 @@
+.ipynb_checkpoints
+*.pyc
+*.csv
+*.p
+*.pkl
+*.pickle
+*.model
+*.model.*
+
+##For R
+*.Rhistory
