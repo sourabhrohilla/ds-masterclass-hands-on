@@ -7,8 +7,8 @@ sapply(load.libraries, require, character = TRUE)
 
 ####### Reading the data from csv #########
 # Enter your own path containing the dataset.
-train_file_path  <- ('~/Desktop/hands-on/session_1_data_train.csv')
-test_file_path  <- ('~/Desktop/hands-on/session_1_data_test.csv')
+train_file_path  <- ('/home/karan/Downloads/session_1_data_train.csv')
+test_file_path  <- ('/home/karan/Downloads/session_1_data_test.csv')
 train_data <- read.csv(train_file_path,stringsAsFactors = FALSE,header = TRUE)
 test_data <- read.csv(test_file_path,stringsAsFactors = FALSE,header = TRUE)
 

@@ -6,8 +6,8 @@ sapply(load.libraries, require, character = TRUE)
 
 ####### Reading the data from csv #########
 # Enter your own path containing the dataset.
-train_file_path  <- ('~/Desktop/hands-on/session_1_data_train.csv')
-test_file_path  <- ('~/Desktop/hands-on/session_1_data_test.csv')
+train_file_path  <- ('/home/karan/Downloads/session_1_data_train.csv')
+test_file_path  <- ('/home/karan/Downloads/session_1_data_test.csv')
 train_data <- read.csv(train_file_path,stringsAsFactors = FALSE,header = TRUE)
 test_data <- read.csv(test_file_path,stringsAsFactors = FALSE,header = TRUE)
 
@@ -18,6 +18,28 @@ str(train_data)
 ######Removing duplicates from data####
 dim(unique(train_data))
 train_data <- unique(train_data)
+
+###################################
+get_attack_type_label <- function(attack_name){
+  if(attack_name %in% c('back.','land.','neptune.','pod.','smurf.','teardrop.')){
+    return('dos')
+  }
+  else if(attack_name %in% c('buffer_overflow.','loadmodule.','perl.','rootkit.')){
+    return('utr')
+  }
+  else if(attack_name %in% c('ftp_write.','guess_passwd.','imap.','multihop.',
+                             'phf.','spy.','warezclient.','warezmaster.')){
+    return('rtl')
+  }
+  else if(attack_name %in% c('satan.','ipsweep.','nmap.','portsweep.')){
+    return('probes')
+  }
+  else if(attack_name %in% c('normal.')){
+    return('normal')
+  }
+  return('others')
+}
+
 
 ###### Check for Missing data ########
 cols_with_missing_vals <- sapply(train_data, function(x) sum(is.na(x)/nrow(train_data))) 
@@ -63,27 +85,7 @@ relevant_correlations <- as.matrix(subset(melt(correlationMatrix, na.rm = TRUE),
 
 
 
-######Some preprocessing on test dataset.########### 
-get_attack_type_label <- function(attack_name){
-  if(attack_name %in% c('back.','land.','neptune.','pod.','smurf.','teardrop.')){
-    return('dos')
-  }
-  else if(attack_name %in% c('buffer_overflow.','loadmodule.','perl.','rootkit.')){
-    return('utr')
-  }
-  else if(attack_name %in% c('ftp_write.','guess_passwd.','imap.','multihop.',
-                             'phf.','spy.','warezclient.','warezmaster.')){
-    return('rtl')
-  }
-  else if(attack_name %in% c('satan.','ipsweep.','nmap.','portsweep.')){
-    return('probes')
-  }
-  else if(attack_name %in% c('normal.')){
-    return('normal')
-  }
-  return('others')
-}
-
+######Some preprocessing on test dataset.###########
 test_data$label = mapply(get_attack_type_label,test_data$label)
 cols_to_factors             <- c('protocol_type','service','flag','land','logged_in','is_host_login','is_guest_login','label')
 test_data[cols_to_factors] <- lapply(test_data[cols_to_factors],factor)
