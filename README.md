@@ -4,10 +4,16 @@ The folder
 2. session-2 : contains code for session on Text classification, divided into R and python code folders.
 
 
+### Public folder which have the data  
+https://goo.gl/PEug5P
+
+
+
 ### For participants who will be using python
 1. Anaconda distribution for python : Go to https://www.continuum.io/downloads and download the latest Anaconda distribution. Please use Python 2.7 installation.
-2. Run `conda install jupyter`
+4. Run `conda install -c anaconda seaborn`
 3. Run `conda install -c glemaitre imbalanced-learn`
+
 4. Install the libraries listed below using pip. 
 
 Steps to install a library in python.
