@@ -5,7 +5,7 @@ The folder
 
 
 ### For participants who will be using python
-1. Anaconda distribution for python : Go to https://www.continuum.io/downloads and download the latest Anaconda distribution.
+1. Anaconda distribution for python : Go to https://www.continuum.io/downloads and download the latest Anaconda distribution. Please use Python 2.7 installation.
 2. Run `conda install jupyter`
 3. Run `conda install -c glemaitre imbalanced-learn`
 4. Install the libraries listed below using pip. 
@@ -45,7 +45,7 @@ Session 2 : News articles recommender
    ```
 
 ### For participants who will be using R
-1. Set up R : Go to https://cran.rstudio.com/ and download R for your OS. Please download R 3.4.1
+1. Set up R : Go to https://cran.rstudio.com/ and download R for your OS. Please download R version >=3.4.1
 2. Set up R Studio : Go to  https://www.rstudio.com/products/rstudio/ and download open source version of RStudio Desktop.
 3. Install the libraries listed below. 
 
