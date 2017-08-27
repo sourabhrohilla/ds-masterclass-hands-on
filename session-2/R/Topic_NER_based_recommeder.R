@@ -22,15 +22,15 @@ alpha =0.5
 
 #########Loading the required libraries and installing the missing ones ###################
 
-load.libraries <- c('tm', 'topicmodels','lda','MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC',
+load.libraries = c('tm', 'topicmodels','lda','MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC',
                     'rJava','NLP','openNLP','RWeka','magrittr')
-install.lib <- load.libraries[!load.libraries %in% installed.packages()]
+install.lib = load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
 
 # OpenNLPModels.en
-loadOpenNLP.libraries <- c('openNLPmodels.en')
-install.lib <- loadOpenNLP.libraries[!loadOpenNLP.libraries %in% installed.packages()]
+loadOpenNLP.libraries = c('openNLPmodels.en')
+install.lib = loadOpenNLP.libraries[!loadOpenNLP.libraries %in% installed.packages()]
 for(libs in install.lib){install.packages("openNLPmodels.en",
                                           repos = "http://datacube.wu.ac.at/",
                                           type = "source")} 
@@ -47,33 +47,33 @@ sapply(loadOpenNLP.libraries, require, character = TRUE)
 #3. Generate user vector
 
 # Extracting NEs from user read article text
-idx<-which(Articles$Article_Id %in% User_list)
+idx=which(Articles$Article_Id %in% User_list)
 User_articles = Articles[idx,]
 #Combining user preferred articles together 
-text<- paste(User_articles$Content, collapse=" ")
+text= paste(User_articles$Content, collapse=" ")
 
 # In user text, we will retain only Organization/Location/Person entities from the user text
-text <- as.String(text)
+text = as.String(text)
 
-word_ann <- Maxent_Word_Token_Annotator()
-sent_ann <- Maxent_Sent_Token_Annotator()
-person_ann <- Maxent_Entity_Annotator(kind = "person")
-location_ann <- Maxent_Entity_Annotator(kind = "location")
-organization_ann <- Maxent_Entity_Annotator(kind = "organization")
+word_ann = Maxent_Word_Token_Annotator()
+sent_ann = Maxent_Sent_Token_Annotator()
+person_ann = Maxent_Entity_Annotator(kind = "person")
+location_ann = Maxent_Entity_Annotator(kind = "location")
+organization_ann = Maxent_Entity_Annotator(kind = "organization")
 
-pipeline <- list(sent_ann, word_ann,person_ann, location_ann,organization_ann)
-text_annotations <- NLP::annotate(text, pipeline)
-text_doc <- AnnotatedPlainTextDocument(text, text_annotations)
+pipeline = list(sent_ann, word_ann,person_ann, location_ann,organization_ann)
+text_annotations = NLP::annotate(text, pipeline)
+text_doc = AnnotatedPlainTextDocument(text, text_annotations)
 
 # Extract entities from an AnnotatedPlainTextDocument
-entities <- function(doc, kind) {
-  s <- doc$content
-  a <- annotations(doc)[[1]]
+entities = function(doc, kind) {
+  doc_content = doc$content
+  doc_annotations = annotations(doc)[[1]]
   if(hasArg(kind)) {
-    k <- sapply(a$features, `[[`, "kind")
-    s[a[k == kind]]
+    entity_kind = sapply(doc_annotations$features, `[[`, "kind")
+    doc_content[doc_annotations[entity_kind == kind]]
   } else {
-    s[a[a$type == "entity"]]
+    doc_content[doc_annotations[doc_annotations$type == "entity"]]
   }
 }
 
@@ -81,29 +81,29 @@ text_entities = list()
 persons = (entities(text_doc, kind = "person"))
 locations = (entities(text_doc, kind = "location"))
 organizations = (entities(text_doc, kind = "organization"))
-user_Text_Ner<- paste(c(persons, locations, organizations), collapse = " ")
+user_Text_Ner= paste(c(persons, locations, organizations), collapse = " ")
 print(user_Text_Ner)
 
 #Creating corpus
 UserNerCorpus = VCorpus(VectorSource(user_Text_Ner))
 
 # Text cleaning using transformation function tm_map
-toSpace <- content_transformer(function(x, pattern) gsub(pattern, "", x)) 
-UserNerCorpus<- tm_map(UserNerCorpus, toSpace, "/|@|\\|")
-UserNerCorpus <- tm_map(UserNerCorpus, removeNumbers)
-removeHyphen <- function(x) gsub("-", " ", x)  #Replace hyphen with space
-UserNerCorpus <- tm_map(UserNerCorpus, removeHyphen)
-UserNerCorpus <- tm_map(UserNerCorpus, removePunctuation) 
-UserNerCorpus <- tm_map(UserNerCorpus, stripWhitespace)
-UserNerCorpus <- tm_map(UserNerCorpus, removeWords, stopwords("english"))
-UserNerCorpus <- tm_map(UserNerCorpus,stemDocument)
+toSpace = content_transformer(function(x, pattern) gsub(pattern, "", x)) 
+UserNerCorpus= tm_map(UserNerCorpus, toSpace, "/|@|\\|")
+UserNerCorpus = tm_map(UserNerCorpus, removeNumbers)
+removeHyphen = function(x) gsub("-", " ", x)  #Replace hyphen with space
+UserNerCorpus = tm_map(UserNerCorpus, removeHyphen)
+UserNerCorpus = tm_map(UserNerCorpus, removePunctuation) 
+UserNerCorpus = tm_map(UserNerCorpus, stripWhitespace)
+UserNerCorpus = tm_map(UserNerCorpus, removeWords, stopwords("english"))
+UserNerCorpus = tm_map(UserNerCorpus,stemDocument)
 #writeLines(as.character(UserNerCorpus[2]))
 
 #Tokenise
-removeRegex<- function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +") 
-UserNerCorpus<- tm_map(UserNerCorpus, removeRegex)
+removeRegex= function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +") 
+UserNerCorpus= tm_map(UserNerCorpus, removeRegex)
 #writeLines(as.character(UserNerCorpus[2]))
-UserNerCorpus <- tm_map(UserNerCorpus, PlainTextDocument)
+UserNerCorpus = tm_map(UserNerCorpus, PlainTextDocument)
 
 ################ 2. Load the trained LDA model on Article corpus and represent NER of user text as a vector ##############
 # Load the trained model
@@ -127,8 +127,8 @@ user_NER_article_topics = (user_NER_article_topics[[2]])
 
 # user article topic vector 
 Article_topics$Article_ID = Articles$Article_Id
-art_idx<- which(Article_topics$Article_ID %in% User_list)
-user_article_topics<- matrix(colMeans(Article_topics[art_idx, 1:k]))
+art_idx= which(Article_topics$Article_ID %in% User_list)
+user_article_topics= matrix(colMeans(Article_topics[art_idx, 1:k]))
 
 # User_Vector =>  (Alpha) [TF-IDF Vector] + (1-Alpha) [NER Vector] 
 user_vector = alpha*(t(user_article_topics)) + (1-alpha)*user_NER_article_topics

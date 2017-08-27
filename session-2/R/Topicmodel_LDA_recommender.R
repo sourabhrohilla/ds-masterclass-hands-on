@@ -5,8 +5,8 @@
 #4.Get the recommended articles
 
 #########Loading the required libraries and installing the missing ones ###################
-load.libraries <- c('tm', 'topicmodels','lda','MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC')
-install.lib <- load.libraries[!load.libraries %in% installed.packages()]
+load.libraries = c('tm', 'topicmodels','lda','MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC')
+install.lib = load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
 
@@ -14,14 +14,14 @@ sapply(load.libraries, require, character = TRUE)
 #1. PATH_NEWS_ARTICLES: specify the path where news_article.csv is present 
 #2. User_list: List of Article_Ids read by the user 
 #3. No_Recommended_Articles, N: Refers to the number of recommended articles as a result
-Path_News_Articles="~/Desktop/Banglaore learning/Recommender system/news_articles.csv"
+Path_News_Articles="~/Desktop/R/news_articles.csv"
 User_list=c(7,6,76,61,761)
 N = 5
 
 ###### 1.Represent user read articles in terms of Topic Vector using trained LDA model  ##############
 #1.Reading the csv file to get the Article id, Title and News Content
 
-News_Articles<-read.csv(Path_News_Articles)
+News_Articles=read.csv(Path_News_Articles)
 head(News_Articles)
 
 #Select relevant columns and remove rows with missing values
@@ -30,22 +30,20 @@ News_Articles = News_Articles[,c('Article_Id','Title','Content')]
 Articles = News_Articles[complete.cases(News_Articles),]
 Articles$Content[0] # an uncleaned article
 
-idx<-which(Articles$Article_ID %in% User_list)
+idx=which(Articles$Article_ID %in% User_list)
 User_articles = Articles[idx,]
 #Combining user preferred articles together 
-text<- paste(User_articles$Content, collapse=" ")
+text= paste(User_articles$Content, collapse=" ")
 
 #################2.Represent articles in terms of Topic Vector using trained LDA model#####################
-# Load the trained model
-Article_topics = read.csv('Article_topics_150_topics.csv')
 # Load the trained LDA model
 load("Lda_model_150_topics.Rdata")
 
 ################# 3. Represent user in terms of Topic Vector of read articles using trained LDA model ###########
 Article_topics$Article_ID = Articles$Article_Id
 library(dplyr)
-art_idx<- which(Article_topics$Article_ID %in% User_list)
-user_article_topics<- matrix(colMeans(Article_topics[art_idx, 1:k]))
+art_idx= which(Article_topics$Article_ID %in% User_list)
+user_article_topics= matrix(colMeans(Article_topics[art_idx, 1:k]))
 
 ################# 4. Calculate cosine similarity between user read articles and unread articles ######################
 Articles_ranking                         = Articles[,c("Article_Id","Title")]

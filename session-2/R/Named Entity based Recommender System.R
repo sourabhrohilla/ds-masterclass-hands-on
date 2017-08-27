@@ -25,15 +25,15 @@ alpha = 0.5
 
 #########Loading the required libraries and installing the missing ones ###################
 
-load.libraries <- c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC',
+load.libraries = c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC',
                     'rJava','NLP','openNLP','RWeka','magrittr')
-install.lib <- load.libraries[!load.libraries %in% installed.packages()]
+install.lib = load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
 
 # OpenNLPModels.en
-loadOpenNLP.libraries <- c('openNLPmodels.en')
-install.lib <- loadOpenNLP.libraries[!loadOpenNLP.libraries %in% installed.packages()]
+loadOpenNLP.libraries = c('openNLPmodels.en')
+install.lib = loadOpenNLP.libraries[!loadOpenNLP.libraries %in% installed.packages()]
 for(libs in install.lib){install.packages("openNLPmodels.en",
                                           repos = "http://datacube.wu.ac.at/",
                                           type = "source")} 
@@ -41,7 +41,7 @@ sapply(loadOpenNLP.libraries, require, character = TRUE)
 
 # Load the articles 
 
-News_Articles<-read.csv(Path_News_Articles)
+News_Articles = read.csv(Path_News_Articles)
 head(News_Articles)
 
 #Select relevant columns and remove rows with missing values
@@ -51,40 +51,41 @@ Articles = News_Articles[complete.cases(News_Articles),]
 Articles$Content[0] # an uncleaned article
 
 ################### 1. Extracting NEs from user read article text #############################
-idx<-which(Articles$Article_Id %in% User_list)
+idx = which(Articles$Article_Id %in% User_list)
 User_articles = Articles[idx,]
 #Combining user preferred articles together 
-text<- paste(User_articles$Content, collapse=" ")
+text = paste(User_articles$Content, collapse=" ")
 
 # In user text, we will retain only Organization/Location/Person entities from the user text
-text <- as.String(text)
+text = as.String(text)
 
-word_ann <- Maxent_Word_Token_Annotator()
-sent_ann <- Maxent_Sent_Token_Annotator()
-person_ann <- Maxent_Entity_Annotator(kind = "person")
-location_ann <- Maxent_Entity_Annotator(kind = "location")
-organization_ann <- Maxent_Entity_Annotator(kind = "organization")
-pipeline <- list(sent_ann, word_ann,person_ann, location_ann,organization_ann)
-text_annotations <- NLP::annotate(text, pipeline)
-text_doc <- AnnotatedPlainTextDocument(text, text_annotations)
+word_ann = Maxent_Word_Token_Annotator()
+sent_ann = Maxent_Sent_Token_Annotator()
+person_ann = Maxent_Entity_Annotator(kind = "person")
+location_ann = Maxent_Entity_Annotator(kind = "location")
+organization_ann = Maxent_Entity_Annotator(kind = "organization")
+pipeline = list(sent_ann, word_ann,person_ann, location_ann,organization_ann)
+text_annotations = NLP::annotate(text, pipeline)
+text_doc = AnnotatedPlainTextDocument(text, text_annotations)
 
 # Extract entities from an AnnotatedPlainTextDocument
-entities <- function(doc, kind) {
-  s <- doc$content
-  a <- annotations(doc)[[1]]
+entities = function(doc, kind) {
+  doc_content = doc$content
+  doc_annotations = annotations(doc)[[1]]
   if(hasArg(kind)) {
-    k <- sapply(a$features, `[[`, "kind")
-    s[a[k == kind]]
+    entity_kind = sapply(doc_annotations$features, `[[`, "kind")
+    doc_content[doc_annotations[entity_kind == kind]]
   } else {
-    s[a[a$type == "entity"]]
+    doc_content[doc_annotations[doc_annotations$type == "entity"]]
   }
 }
+
 
 text_entities = list()
 persons = (entities(text_doc, kind = "person"))
 locations = (entities(text_doc, kind = "location"))
 organizations = (entities(text_doc, kind = "organization"))
-user_Text_Ner<- paste(c(persons, locations, organizations), collapse = " ")
+user_Text_Ner= paste(c(persons, locations, organizations), collapse = " ")
 print(user_Text_Ner)
 
 #### 2. Text processing of user read articles and generating TFIDF value vector  #####

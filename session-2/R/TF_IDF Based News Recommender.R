@@ -15,8 +15,8 @@ User_list=c(1,959,2500,82,174)
 N=5
 
 #########Loading the required libraries and installing the missing ones ###################
-load.libraries <- c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC', 'text2vec')
-install.lib <- load.libraries[!load.libraries %in% installed.packages()]
+load.libraries = c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC', 'text2vec')
+install.lib = load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
 
@@ -26,7 +26,7 @@ sapply(load.libraries, require, character = TRUE)
 #3.Tokenize each article
 #4. Stem token of every article
 
-News_Articles<-read.csv(Path_News_Articles)
+News_Articles=read.csv(Path_News_Articles)
 head(News_Articles)
 
 #Select relevant columns and remove rows with missing values
@@ -36,7 +36,7 @@ Articles = News_Articles[complete.cases(News_Articles),]
 Articles$Content[0] # an uncleaned article
 
 # define preprocessing functions and tokenization function
-remove_punctuation <- function(x) gsub("[[:punct:]]", "",x)
+remove_punctuation = function(x) gsub("[[:punct:]]", "",x)
 stem_tokenizer = function(x) {
   x = tolower(x)
   x = 
@@ -60,15 +60,14 @@ Dtm_articles = create_dtm(Articles_cleaned, vectorizer)
 ############### 2. Generate TF-IDF matrix for the articles ################
 # define tfidf model
 tfidf = TfIdf$new()
-# convert 
 article_tfidf_matrix = fit_transform(Dtm_articles, tfidf)
 
 ############### 3.Represent user in terms of read/preferred articles and as vector with TfIdf values #######
 
 # Extracting user read articles 
-idx<-which(Articles$Article_Id %in% User_list)
+idx=which(Articles$Article_Id %in% User_list)
 User_articles = Articles[idx,]
-text<- paste(User_articles$Content, collapse=" ")
+text= paste(User_articles$Content, collapse=" ")
 
 # Cleaning and tokenizing user read text
 User_text = itoken(text, 
