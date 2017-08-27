@@ -10,12 +10,12 @@
 #2. User_list: List of Article_Ids read by the user 
 #3. No_Recommended_Articles, N: Refers to the number of recommended articles as a result
 
-Path_News_Articles="~/Desktop/Banglaore learning/Recommender system/news_articles.csv"
+Path_News_Articles="news_articles.csv"
 User_list=c(1,959,2500,82,174)
 N=5
 
 #########Loading the required libraries and installing the missing ones ###################
-load.libraries = c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC', 'text2vec')
+load.libraries = c('tm', 'topicmodels', 'MASS','NLP','R.utils', 'stringdist','dplyr','SnowballC', 'text2vec','')
 install.lib = load.libraries[!load.libraries %in% installed.packages()]
 for(libs in install.lib) install.packages(libs, dep = T)
 sapply(load.libraries, require, character = TRUE)
@@ -37,11 +37,13 @@ Articles$Content[0] # an uncleaned article
 
 # define preprocessing functions and tokenization function
 remove_punctuation = function(x) gsub("[[:punct:]]", "",x)
+
+remove_stopwords = function(x) x[!x %in% stopwords("en")]
 stem_tokenizer = function(x) {
   x = tolower(x)
-  x = 
   tokens = word_tokenizer(x)
   lapply(tokens, SnowballC::wordStem, language="en")
+  lapply(tokens, function(x)(x[!(x %in% stopwords("en"))]))
 }
 
 # Tokenizing the content of the articles 
@@ -51,8 +53,7 @@ Articles_cleaned = itoken(Articles$Content,
                   tokenizer = stem_tokenizer, 
                   ids = Articles$Article_Id,
                   progressbar = FALSE)
-
-#
+## 
 Articles_vocab = create_vocabulary(Articles_cleaned)
 vectorizer = vocab_vectorizer(Articles_vocab)
 Dtm_articles = create_dtm(Articles_cleaned, vectorizer)
