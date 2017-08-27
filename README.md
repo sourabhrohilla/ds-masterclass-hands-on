@@ -1,10 +1,13 @@
 # ds-masterclass-hands-on
+
+
+
 The folder 
 1. session-1 : contains code for session on Intrusion Detection, divided into R and python code folders.
 2. session-2 : contains code for session on Text classification, divided into R and python code folders.
 
 
-### Public folder which have the data  
+### Public dropbox folder containing data, problem description, data dictionaries  
 https://goo.gl/PEug5P
 
 
