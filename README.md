@@ -93,6 +93,7 @@ Session 2 : News articles recommender
 15. magrittr
 16. openNLPmodels.en
 17. data.table
+18. text2vec
 
 
 
