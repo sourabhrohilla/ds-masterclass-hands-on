@@ -96,7 +96,7 @@ articles_ranking = subset(articles_ranking, !(Article_Id %in% USER_READ_LIST))
 # Sorting based on the cosine similarity score
 articles_ranking = articles_ranking[order(-articles_ranking$Cosine_Similarity_Score),]
 
-## Recommendations based on topic modelling 
+## Recommendations based on tfidf
 articles_recommended_id = articles_ranking[1:NUM_RECOMMENDED_ARTICLES,1]
 top_n_articles = articles[which(articles$Article_Id %in% articles_recommended_id),c(1,2)]
 
