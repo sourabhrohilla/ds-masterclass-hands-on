@@ -10,8 +10,8 @@ sapply(load.libraries, require, character = TRUE)
 
 ############### Describing parameters ######################
 #1. PATH_NEWS_ARTICLES: specify the path where news_article.csv is present 
-Path_News_Articles="~/Desktop/R/news_articles.csv"
-k = 150  # No of topics
+PATH_NEWS_ARTICLES="/home/karan/Downloads/news_articles.csv"
+NUM_TOPICS = 150  # No of topics
 
 ###### 1.Represent articles in terms of bag of words ##############
 #1.Reading the csv file to get the Article id, Title and News Content
@@ -19,51 +19,51 @@ k = 150  # No of topics
 #3.Tokenize each article
 #4. Stem token of every article
 
-News_Articles=read.csv(Path_News_Articles)
-head(News_Articles)
+news_articles=read.csv(PATH_NEWS_ARTICLES)
+head(news_articles)
 
 #Select relevant columns and remove rows with missing values
 
-News_Articles = News_Articles[,c('Article_Id','Title','Content')]
-Articles = News_Articles[complete.cases(News_Articles),]
-Articles$Content[0] # an uncleaned article
+news_articles = news_articles[,c('Article_Id','Title','Content')]
+articles = news_articles[complete.cases(news_articles),]
+articles$Content[0] # an uncleaned article
 
 #Creating corpus
-ArticleCorpus = VCorpus(VectorSource(Articles$Content))
+article_corpus = VCorpus(VectorSource(articles$Content))
 
 # Text cleaning using transformation function tm_map
 toSpace = content_transformer(function(x, pattern) gsub(pattern, "", x)) 
-ArticleCorpus= tm_map(ArticleCorpus, toSpace, "/|@|\\|")
-ArticleCorpus = tm_map(ArticleCorpus, removeNumbers)
+article_corpus= tm_map(article_corpus, toSpace, "/|@|\\|")
+article_corpus = tm_map(article_corpus, removeNumbers)
 removeHyphen = function(x) gsub("-", " ", x)  #Replace hyphen with space
-ArticleCorpus = tm_map(ArticleCorpus, removeHyphen)
-ArticleCorpus = tm_map(ArticleCorpus, removePunctuation) 
-ArticleCorpus = tm_map(ArticleCorpus, stripWhitespace)
-ArticleCorpus = tm_map(ArticleCorpus, removeWords, stopwords("english"))
-ArticleCorpus = tm_map(ArticleCorpus,stemDocument)
-#writeLines(as.character(ArticleCorpus[2]))
+article_corpus = tm_map(article_corpus, removeHyphen)
+article_corpus = tm_map(article_corpus, removePunctuation) 
+article_corpus = tm_map(article_corpus, stripWhitespace)
+article_corpus = tm_map(article_corpus, removeWords, stopwords("english"))
+article_corpus = tm_map(article_corpus,stemDocument)
+#writeLines(as.character(article_corpus[2]))
 
 #Tokenise
 removeRegex= function(x) strsplit(gsub("[^[:alnum:] ]", "", x), " +") 
-ArticleCorpus= tm_map(ArticleCorpus, removeRegex)
-writeLines(as.character(ArticleCorpus[2]))
-ArticleCorpus = tm_map(ArticleCorpus, PlainTextDocument)
+article_corpus= tm_map(article_corpus, removeRegex)
+writeLines(as.character(article_corpus[2]))
+article_corpus = tm_map(article_corpus, PlainTextDocument)
 
 
 ################ 2. Training of LDA model using Article corpus ###################################
 # creating document term matrix
-Dtm = DocumentTermMatrix(ArticleCorpus, 
-                          control = list(wordLengths=c(2,Inf), 
-                                         weighting=weightTf))
-Corpus_Terms = Terms(Dtm)
-# running lda with k topics
-Dtm_LDA = LDA(Dtm,k,method = "Gibbs")
-Topic_terms = as.data.frame(t(posterior(Dtm_LDA)$terms))
-Article_topics =  as.data.frame(Dtm_LDA@gamma)
-View_topic_list = get_terms(Dtm_LDA,15)
+dtm = DocumentTermMatrix(article_corpus, 
+                         control = list(wordLengths=c(2,Inf), 
+                                        weighting=weightTf))
+corpus_terms = Terms(dtm)
+# running lda with NUM_TOPICS topics
+dtm_LDA = LDA(dtm,NUM_TOPICS,method = "Gibbs")
+topic_terms = as.data.frame(t(posterior(dtm_LDA)$terms))
+article_topics =  as.data.frame(dtm_LDA@gamma)
+view_topic_list = get_terms(dtm_LDA,15)
 
 #setwd("~/Desktop/Banglaore learning/Recommender system")
-write.csv(Article_topics, 'Article_topics_150_topics.csv')
-write.csv(Topic_terms, 'Topic_terms_150_topics.csv')
+write.csv(article_topics, 'article_topics_150_topics.csv')
+write.csv(topic_terms, 'topic_terms_150_topics.csv')
 save.image(file = "~/Desktop/Banglaore learning/Recommender system/Lda_model_150_topics.Rdata")
 
