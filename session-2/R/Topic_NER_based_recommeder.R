@@ -15,7 +15,7 @@
 #3. No_Recommended_Articles, N: Refers to the number of recommended articles as a result
 #4. alpha: Weightage parameters for Named entity based vector
 
-Path_News_Articles="~/Desktop/Banglaore learning/Recommender system/news_articles.csv"
+Path_News_Articles="/home/karan/Downloads/news_articles.csv"
 User_list=c(85,526,896,1596,2431)
 N=5
 alpha =0.5
@@ -47,8 +47,8 @@ sapply(loadOpenNLP.libraries, require, character = TRUE)
 #3. Generate user vector
 
 # Extracting NEs from user read article text
-idx=which(Articles$Article_Id %in% User_list)
-User_articles = Articles[idx,]
+idx=which(articles$Article_Id %in% User_list)
+User_articles = articles[idx,]
 #Combining user preferred articles together 
 text= paste(User_articles$Content, collapse=" ")
 
@@ -112,7 +112,7 @@ UserNerCorpus = tm_map(UserNerCorpus, PlainTextDocument)
 #load("Lda_model_150_topics.Rdata")
 
 user_article_NER_tf  = DocumentTermMatrix(UserNerCorpus, 
-                           control = list(wordLengths=c(2,Inf),dictionary = Corpus_Terms,
+                           control = list(wordLengths=c(2,Inf),dictionary = corpus_terms,
                                           weighting=weightTf))
 
 ###### 3. User topic vector based on NEs of user read article text #############
@@ -122,25 +122,25 @@ user_article_NER_tf= (as.matrix(user_article_NER_tf))
 
 # predicting topics for user_NER_txt using trained LDA model 
 
-user_NER_article_topics = posterior(Dtm_LDA,user_article_NER_tf)
+user_NER_article_topics = posterior(dtm_LDA,user_article_NER_tf)
 user_NER_article_topics = (user_NER_article_topics[[2]])
 
 # user article topic vector 
-Article_topics$Article_ID = Articles$Article_Id
-art_idx= which(Article_topics$Article_ID %in% User_list)
-user_article_topics= matrix(colMeans(Article_topics[art_idx, 1:k]))
+article_topics$Article_ID = articles$Article_Id
+art_idx= which(article_topics$Article_ID %in% User_list)
+user_article_topics= matrix(colMeans(article_topics[art_idx, 1:NUM_TOPICS]))
 
 # User_Vector =>  (Alpha) [TF-IDF Vector] + (1-Alpha) [NER Vector] 
 user_vector = alpha*(t(user_article_topics)) + (1-alpha)*user_NER_article_topics
 
 ######### 4. Calculate cosine similarity between user read articles and unread articles ######################
 
-Articles_ranking                         = Articles[,c("Article_Id","Title")]
+Articles_ranking                         = articles[,c("Article_Id","Title")]
 Articles_ranking$Cosine_Similarity_Score = NA
 
 for (i in 1:(nrow(Articles_ranking))){
-  Articles_ranking[i,3] = sum(Article_topics[i,1:k]*user_vector)/
-    (sqrt(sum((Article_topics[i,1:k])^2))*sqrt(sum((user_vector)^2)))
+  Articles_ranking[i,3] = sum(article_topics[i,1:NUM_TOPICS]*user_vector)/
+    (sqrt(sum((article_topics[i,1:NUM_TOPICS])^2))*sqrt(sum((user_vector)^2)))
 }
 head(Articles_ranking)
 
@@ -152,10 +152,10 @@ Articles_ranking = Articles_ranking[order(-Articles_ranking$Cosine_Similarity_Sc
 
 ## Recommendations based on topic modelling 
 articles_recommended_id = Articles_ranking[1:N,1]
-Top_n_articles = Articles[which(Articles$Article_Id %in% articles_recommended_id),c(1,2)]
+Top_n_articles = articles[which(articles$Article_Id %in% articles_recommended_id),c(1,2)]
 
 ## Print user articles 
-User_read_articles = Articles[which(Articles$Article_Id %in% User_list),c(1,2)]
+User_read_articles = articles[which(articles$Article_Id %in% User_list),c(1,2)]
 print('User read articles')
 print(User_read_articles)
 
