@@ -83,6 +83,7 @@ Session 2 : News articles recommender
 2. topicmodels
 3. lda
 4. MASS
+5. devtools
 5. NLP
 6. R.utils
 7. stringdist
@@ -99,5 +100,16 @@ Session 2 : News articles recommender
 18. text2vec
 
 
+**Note** If any issues with Rjava, make sure you have JDK and JRE installed on your system.
+
+For Windows:
+http://docs.oracle.com/javase/7/docs/webnotes/install/windows/jdk-installation-windows.html  
+
+For Linux:
+https://github.com/hannarud/r-best-practices/wiki/Installing-RJava-(Ubuntu)  
+
+
+  
+  
 
 If you are not able to setup your machine, please send an email to sourabh@tatrasdata.com
