@@ -15,7 +15,7 @@
 #3. No_Recommended_Articles, N: Refers to the number of recommended articles as a result
 #4. alpha: Weightage parameters for Named entity based vector
 
-Path_News_Articles="~/Desktop/Banglaore learning/Recommender system/news_articles.csv"
+Path_News_Articles="/home/karan/Downloads/news_articles.csv"
 User_list=c(85,526,896,1596,2431)
 N=5
 alpha =0.5

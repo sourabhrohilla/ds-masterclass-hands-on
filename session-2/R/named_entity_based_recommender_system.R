@@ -98,16 +98,16 @@ user_article_tfidf
 ## TfIdf value vector for user NER text 
 # Cleaning and tokenizing user read text
 user_ner_text = itoken(user_text_ner, 
-                       preprocessor = removepunctuation, 
+                       preprocessor = remove_punctuation, 
                        tokenizer = stem_tokenizer, 
                        progressbar = FALSE)
 
 # Generating TfIDf vector for user read articles 
-user_article_ner_tfidf = create_dtm(user_text, vectorizer) %>% transform(tfidf)
+user_article_ner_tfidf = create_dtm(user_ner_text, vectorizer) %>% transform(tfidf)
 
 #User_Vector =>  (Alpha) [TF-IDF Vector] + (1-Alpha) [NER Vector] 
 
-user_vector = alpha*(user_article_tfidf ) + (1-alpha)*user_article_ner_tfidf
+user_vector = alpha*(user_article_tfidf ) + (1-alpha)*user_article_ner_tfidf[1,]
 
 ######### 5. Calculate cosine similarity between user read articles and unread articles ######################
 
@@ -126,8 +126,8 @@ articles_ranking = subset(articles_ranking, !(article_id %in% USER_READ_LIST))
 # Sorting based on the cosine similarity score
 articles_ranking = articles_ranking[order(-articles_ranking$cosine_similarity_score),]
 
-## Recommendations based on topic modelling 
-articles_recommended_id = articles_ranking[1:N,1]
+## Recommendations based on tfidf ner
+articles_recommended_id = articles_ranking[1:NUM_RECOMMENDED_ARTICLES,1]
 top_n_articles = articles[which(articles$article_id %in% articles_recommended_id),c(1,2)]
 
 ## Print user articles 
